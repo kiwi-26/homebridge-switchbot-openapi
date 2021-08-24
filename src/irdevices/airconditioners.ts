@@ -10,6 +10,7 @@ import { DeviceURL, irdevice } from '../settings';
  */
 export class AirConditioner {
   service!: Service;
+  temperatureservice?: Service;
 
   Active!: CharacteristicValue;
   RotationSpeed!: CharacteristicValue;
@@ -46,6 +47,9 @@ export class AirConditioner {
     (this.service =
       accessory.getService(this.platform.Service.HeaterCooler) ||
       accessory.addService(this.platform.Service.HeaterCooler)), '%s %s', device.deviceName, device.remoteType;
+
+    this.temperatureservice =
+          this.accessory.getService(this.platform.Service.TemperatureSensor);
 
     // To avoid "Cannot add a Service with the same UUID another Service without also defining a unique 'subtype' property." error,
     // when creating multiple services of the same type, you need to use the following syntax to specify a name and subtype id:
@@ -158,6 +162,22 @@ export class AirConditioner {
 
   private CurrentTemperatureGet(value: CharacteristicValue) {
     this.platform.log.debug('Trigger Get CurrentTemperture');
+
+    if (!this.temperatureservice) {
+      this.temperatureservice =
+        this.accessory.getService(this.platform.Service.TemperatureSensor);
+    }
+
+    if (this.temperatureservice) {
+      const currentValue =
+        this.temperatureservice.getCharacteristic(this.platform.Characteristic.CurrentTemperature).value;
+
+      this.platform.log.debug(`CurrentTemperture: ${currentValue}`);
+      this.service
+        .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+        .updateValue(currentValue);
+      return (this.CurrentTemperature = Number(currentValue))
+    }
 
     this.service
       .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
