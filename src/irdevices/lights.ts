@@ -82,9 +82,9 @@ export class Light {
   async pushLightOnChanges() {
     if (this.On) {
       const payload = {
-        commandType: 'command',
+        commandType: 'customize',
         parameter: 'default',
-        command: 'turnOn',
+        command: '調光１',
       } as any;
       await this.pushChanges(payload);
     }
