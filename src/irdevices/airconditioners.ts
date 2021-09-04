@@ -174,7 +174,7 @@ export class AirConditioner {
         return (this.CurrentTemperature = Number(currentValue))
       }
     }
-    
+
     this.service
       .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .updateValue(this.CurrentTemperature || 24);
@@ -277,7 +277,7 @@ export class AirConditioner {
     this.CurrentARMode = this.CurrentMode || 1;
     this.CurrentARFanSpeed = this.CurrentFanSpeed || 1;
     this.ARActive = this.Active === 1 ? 'on' : 'off';
-    payload.parameter = '%s,%s,%s,%s', this.CurrentARTemp, this.CurrentARMode, this.CurrentARFanSpeed, this.ARActive;
+    payload.parameter = [this.CurrentARTemp, this.CurrentARMode, this.CurrentARFanSpeed, this.ARActive].join(',');
 
 
     if (this.Active === 1) {
