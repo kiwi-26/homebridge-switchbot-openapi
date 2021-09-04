@@ -24,9 +24,9 @@ export class AirConditioner {
   CurrentFanSpeed!: number;
   Busy: any;
   Timeout: any = null;
-  static MODE_AUTO: number;
-  static MODE_COOL: number;
-  static MODE_HEAT: number;
+  static MODE_AUTO = 1;
+  static MODE_COOL = 2;
+  static MODE_HEAT = 5;
   ValidValues: number[];
 
   constructor(
