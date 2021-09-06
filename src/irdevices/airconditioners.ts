@@ -232,25 +232,25 @@ export class AirConditioner {
    * AirConditioner:        "command"       "highSpeed"      "default"	        =        fan speed to high
    */
   async pushAirConditionerOnChanges() {
-    if (this.Active !== 1) {
+    // if (this.Active !== 1) {
       const payload = {
         commandType: 'command',
         parameter: 'default',
         command: 'turnOn',
       } as any;
       await this.pushChanges(payload);
-    }
+    // }
   }
 
   async pushAirConditionerOffChanges() {
-    if (this.Active !== 0) {
+    // if (this.Active !== 0) {
       const payload = {
         commandType: 'command',
         parameter: 'default',
         command: 'turnOff',
       } as any;
       await this.pushChanges(payload);
-    }
+    // }
   }
 
   async pushAirConditionerStatusChanges() {
