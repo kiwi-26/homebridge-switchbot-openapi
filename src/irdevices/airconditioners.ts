@@ -15,6 +15,7 @@ export class AirConditioner {
   RotationSpeed!: CharacteristicValue;
   CurrentHeaterCoolerState!: CharacteristicValue;
   CurrentTemperature!: CharacteristicValue;
+  CurrentHeaterCoolerTemperature!: CharacteristicValue;
   CurrentARTemp!: CharacteristicValue;
   CurrentARMode!: CharacteristicValue;
   CurrentARFanSpeed!: CharacteristicValue;
@@ -200,10 +201,22 @@ export class AirConditioner {
 
   private CurrentHeaterCoolerStateGet() {
     if (this.Active === 1) {
-      if ((this.CurrentTemperature || 24) < (this.LastTemperature || 30)) {
-        this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.COOLING;
-      } else {
-        this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.HEATING;
+      switch (this.CurrentMode) {
+        case AirConditioner.MODE_AUTO:
+          if ((this.CurrentHeaterCoolerTemperature || 24) < (this.LastTemperature || 30)) {
+            this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.COOLING;
+          } else {
+            this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.HEATING;
+          }
+          break;
+        case AirConditioner.MODE_COOL:
+          this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.COOLING;
+          break;
+        case AirConditioner.MODE_HEAT:
+          this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.HEATING;
+          break;
+        default:
+          break;
       }
     } else {
       this.CurrentHeaterCoolerState = this.platform.Characteristic.CurrentHeaterCoolerState.INACTIVE;
@@ -212,14 +225,14 @@ export class AirConditioner {
   }
 
   private HeatingThresholdTemperatureGet() {
-    this.CurrentTemperature = this.CurrentTemperature || 24;
-    return this.CurrentTemperature;
+    this.CurrentHeaterCoolerTemperature = this.CurrentHeaterCoolerTemperature || 24;
+    return this.CurrentHeaterCoolerTemperature;
   }
 
   private HeatingThresholdTemperatureSet(value: CharacteristicValue) {
-    this.pushAirConditionerStatusChanges();
     this.LastTemperature = Number(this.CurrentTemperature);
-    this.CurrentTemperature = Number(value);
+    this.CurrentHeaterCoolerTemperature = Number(value);
+    this.pushAirConditionerStatusChanges();
   }
 
   /**
@@ -273,7 +286,7 @@ export class AirConditioner {
       command: 'setAll',
     } as any;
 
-    this.CurrentARTemp = this.CurrentTemperature || 24;
+    this.CurrentARTemp = this.CurrentHeaterCoolerTemperature || 24;
     this.CurrentARMode = this.CurrentMode || 1;
     this.CurrentARFanSpeed = this.CurrentFanSpeed || 1;
     this.ARActive = this.Active === 1 ? 'on' : 'off';
@@ -281,16 +294,34 @@ export class AirConditioner {
 
 
     if (this.Active === 1) {
-      if ((this.CurrentTemperature || 24) < (this.LastTemperature || 30)) {
-        this.service.updateCharacteristic(
-          this.platform.Characteristic.CurrentHeaterCoolerState,
-          this.platform.Characteristic.CurrentHeaterCoolerState.COOLING,
-        );
-      } else {
-        this.service.updateCharacteristic(
-          this.platform.Characteristic.CurrentHeaterCoolerState,
-          this.platform.Characteristic.CurrentHeaterCoolerState.HEATING,
-        );
+      switch (this.CurrentMode) {
+        case AirConditioner.MODE_AUTO:
+          if ((this.CurrentHeaterCoolerTemperature || 24) < (this.LastTemperature || 30)) {
+            this.service.updateCharacteristic(
+              this.platform.Characteristic.CurrentHeaterCoolerState,
+              this.platform.Characteristic.CurrentHeaterCoolerState.COOLING,
+            );
+          } else {
+            this.service.updateCharacteristic(
+              this.platform.Characteristic.CurrentHeaterCoolerState,
+              this.platform.Characteristic.CurrentHeaterCoolerState.HEATING,
+            );
+          }
+          break;
+        case AirConditioner.MODE_COOL:
+          this.service.updateCharacteristic(
+            this.platform.Characteristic.CurrentHeaterCoolerState,
+            this.platform.Characteristic.CurrentHeaterCoolerState.COOLING,
+          );
+          break;
+        case AirConditioner.MODE_HEAT:
+          this.service.updateCharacteristic(
+            this.platform.Characteristic.CurrentHeaterCoolerState,
+            this.platform.Characteristic.CurrentHeaterCoolerState.HEATING,
+          );
+          break;
+        default:
+          break;
       }
     } else {
       this.service.updateCharacteristic(
