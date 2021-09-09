@@ -71,9 +71,9 @@ export class AirConditioner {
       });
 
     if (this.platform.config.options?.irair?.hide_automode) {
-      this.ValidValues = [1, 2];
-    } else {
       this.ValidValues = [0, 1, 2];
+    } else {
+      this.ValidValues = [0, 1, 2, 3];
     }
     this.service
       .getCharacteristic(this.platform.Characteristic.TargetHeaterCoolerState)
